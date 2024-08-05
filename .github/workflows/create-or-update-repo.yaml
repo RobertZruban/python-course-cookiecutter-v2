@@ -31,13 +31,13 @@ jobs:
         run: |
           git config --global user.email "zrubanrobert@gmail.com"
           git config --global user.name "RobertZruban"
-      - name: Create repo if not exists
-        run: |
-          echo "Creating repo if it does not exist"
-          gh auth login --with-token <<< "$GH_TOKEN"
-          gh repo create ${{ github.event.inputs.repo_name }} --${{ github.event.inputs.is_public_repo == 'true' && echo 'public' || echo 'private' }} --confirm
+      - run: |
+          bash -x run.sh create-repo-if-not-exists
         env:
-          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          REPO_NAME: ${{ github.event.inputs.repo_name }}
+          GITHUB_USERNAME: RobertZruban
+          IS_PUBLIC_REPO: ${{ github.event.inputs.is_public_repo }}
+
 
   configure-repo:
     needs: [create-repo-if-not-exists]
@@ -50,12 +50,9 @@ jobs:
         run: |
           git config --global user.email "zrubanrobert@gmail.com"
           git config --global user.name "RobertZruban"
-      - name: Configure repo
-        run: |
-          gh auth login --with-token <<< "$GH_TOKEN"
+      - run: |
           bash -x run.sh configure-repo
         env:
-          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
           TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
           PROD_PYPI_TOKEN: ${{ secrets.PROD_PYPI_TOKEN }}
           REPO_NAME: ${{ github.event.inputs.repo_name }}
@@ -72,12 +69,9 @@ jobs:
         run: |
           git config --global user.email "zrubanrobert@gmail.com"
           git config --global user.name "RobertZruban"
-      - name: Open PR with generated project
-        run: |
-          gh auth login --with-token <<< "$GH_TOKEN"
+      - run: |
           bash -x run.sh open-pr-with-generated-project
         env:
-          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
           REPO_NAME: ${{ github.event.inputs.repo_name }}
           PACKAGE_IMPORT_NAME: ${{ github.event.inputs.package_import_name }}
           GITHUB_USERNAME: RobertZruban
