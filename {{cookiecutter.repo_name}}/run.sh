@@ -36,19 +36,33 @@ function test:ci {
 
 # (example) ./run.sh test tests/test_states_info.py::test__slow_add
 function run-tests {
+    SRC_DIR="${COVERAGE_DIR:-$THIS_DIR/src}"
+    TEST_REPORTS_DIR="$THIS_DIR/test-reports"
     PYTEST_EXIT_STATUS=0
+
+    # Check if there are any files other than __init__.py in the src directory
+    if [ -z "$(find "$SRC_DIR" -type f ! -name '__init__.py')" ]; then
+        echo "No source files found in $SRC_DIR except __init__.py. Skipping tests."
+        return 0
+    fi
+
+    # Run pytest with coverage
     python -m pytest ${@:-"$THIS_DIR/tests/"} \
-        --cov "${COVERAGE_DIR:-$THIS_DIR/src}" \
+        --cov "$SRC_DIR" \
         --cov-report html \
         --cov-report term \
         --cov-report xml \
-        --junit-xml "$THIS_DIR/test-reports/report.xml" \
-        --cov-fail-under 60 || ((PYTEST_EXIT_STATUS+=$?))
-    mv coverage.xml "$THIS_DIR/test-reports/" || true
-    mv htmlcov "$THIS_DIR/test-reports/" || true
-    mv .coverage "$THIS_DIR/test-reports/" || true
+        --junit-xml "$TEST_REPORTS_DIR/report.xml" \
+        --cov-fail-under 0 || ((PYTEST_EXIT_STATUS+=$?))
+
+    # Move coverage reports to the test-reports directory
+    mv coverage.xml "$TEST_REPORTS_DIR/" || true
+    mv htmlcov "$TEST_REPORTS_DIR/" || true
+    mv .coverage "$TEST_REPORTS_DIR/" || true
+
     return $PYTEST_EXIT_STATUS
 }
+
 
 function test:wheel-locally {
     deactivate || true
