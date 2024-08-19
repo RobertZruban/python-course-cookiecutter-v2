@@ -38,7 +38,7 @@ function test:ci {
 function run-tests {
     PYTEST_EXIT_STATUS=0
     # Check if there are any files other than __init__.py in the src directory
-    if [ -z "$(find "${@:-"$THIS_DIR/src/"}" -type f ! -name '__init__.py')" ]; then
+    if [ -z "$(find "${$THIS_DIR/src/}" -type f ! -name '__init__.py')" ]; then
         echo "No source files found in "${@:-"$THIS_DIR/src/"}" except __init__.py. Skipping tests."
         return 0
     fi
